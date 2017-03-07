@@ -28,11 +28,8 @@
      // Create a message and send it to the IoT Hub every second
      setInterval(function(){
          var windSpeed = 8 + (Math.random() * 4);
-		 var date = require('date-and-time');
-		// var now = new Date();
-		 var sensorTime = date.format(new Date(), 'YYYY/MM/DD');
-		 var sensorDate = date.format(new Date(), 'hh:mm A [GMT]Z');
-		 var data = JSON.stringify({ deviceId: 'myIoTSensor', windSpeed: windSpeed, sensorTime: sensorTime, sensorDate: sensorDate});
+		
+ 		 var data = JSON.stringify({ deviceId: 'myIoTSensor', windSpeed: windSpeed});
          var message = new Message(data);
          console.log("Sending message: " + message.getData());
          client.sendEvent(message, printResultFor('send'));
