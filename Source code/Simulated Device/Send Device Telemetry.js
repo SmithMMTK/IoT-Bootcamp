@@ -9,7 +9,7 @@
  var clientFromConnectionString = require('azure-iot-device-mqtt').clientFromConnectionString;
  var Message = require('azure-iot-device').Message;
  
- var connectionString = '<<IoT Hub connection string>>';
+ var connectionString = '<<IoT Device connection string>>';
  var client = clientFromConnectionString(connectionString);
 
  function printResultFor(op) {
