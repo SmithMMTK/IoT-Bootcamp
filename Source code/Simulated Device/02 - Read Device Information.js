@@ -1,0 +1,36 @@
+// Displays the telemetry sent by your simulated device app
+// Run following command before execte this script
+// npm init
+// npm install azure-event-hubs --save
+ 
+ 'use strict';
+
+ var EventHubClient = require('azure-event-hubs').Client;
+
+ 
+ // IoT Hub connection string
+ var connectionString = 'HostName=smIoT1212016.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=4kr9k21TGrm92fJsWAXJyqOv0XIwmwYjIzqVMnedF78=';
+
+  var printError = function (err) {
+   console.log(err.message);
+ };
+
+ var printMessage = function (message) {
+   console.log('Message received: ');
+   console.log(JSON.stringify(message.body));
+   console.log('');
+ };
+
+  var client = EventHubClient.fromConnectionString(connectionString);
+ client.open()
+     .then(client.getPartitionIds.bind(client))
+     .then(function (partitionIds) {
+         return partitionIds.map(function (partitionId) {
+             return client.createReceiver('$Default', partitionId, { 'startAfterTime' : Date.now()}).then(function(receiver) {
+                 console.log('Created partition receiver: ' + partitionId)
+                 receiver.on('errorReceived', printError);
+                 receiver.on('message', printMessage);
+             });
+         });
+     })
+     .catch(printError);
