@@ -9,7 +9,7 @@
 
  
  // IoT Hub connection string
- var connectionString = 'HostName=smIoT1212016.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=4kr9k21TGrm92fJsWAXJyqOv0XIwmwYjIzqVMnedF78=';
+ var connectionString = '<<IoT Hub connection string>>';
 
   var printError = function (err) {
    console.log(err.message);

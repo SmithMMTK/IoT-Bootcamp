@@ -9,7 +9,7 @@
 var iothub = require('azure-iothub');
 
 //replace the placeholder value with the IoT Hub connection string for the hub';
-var connectionString = 'HostName=smIoT1212016.azure-devices.net;SharedAccessKeyName=iothubowner;SharedAccessKey=4kr9k21TGrm92fJsWAXJyqOv0XIwmwYjIzqVMnedF78=';
+var connectionString = '<<IoT Hub connection string>>';
 
 var registry = iothub.Registry.fromConnectionString(connectionString);
 var device = new iothub.Device(null);
