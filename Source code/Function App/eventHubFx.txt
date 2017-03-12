@@ -23,12 +23,12 @@ public static void Run(string myEventHubMessage, TraceWriter log)
     log.Info("***********"+serializedData);
     
     
-    var client = new HttpClient();
+    //var client = new HttpClient();
     
-    client.BaseAddress = new Uri("API URL");
-    client.DefaultRequestHeaders.Accept.Clear();
-    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+    //client.BaseAddress = new Uri("API URL");
+    //client.DefaultRequestHeaders.Accept.Clear();
+    //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-    HttpResponseMessage response = client.PostAsJsonAsync("",serializedData).Result;
-    log.Info(response.ToString());
+    //HttpResponseMessage response = client.PostAsJsonAsync("",serializedData).Result;
+    //log.Info(response.ToString());
 }
