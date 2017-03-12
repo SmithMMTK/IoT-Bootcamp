@@ -1,6 +1,9 @@
 SELECT
-	*
+    max(windSpeed) As windSpeed,
+    deviceId,
+    DATEADD(hour,7,System.Timestamp) As sensorTime
 INTO
-	[YourOutputAlias]
+    output
 FROM
-	[YourInputAlias]
+    input
+GROUP BY TumblingWindow (second, 1), deviceId
