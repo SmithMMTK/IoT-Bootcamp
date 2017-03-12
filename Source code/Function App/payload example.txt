@@ -1,7 +1,1 @@
-[
-	{
-		deviceId : "myFirstDevice",
-		windSpeed : 10,
-		sensorTime : "3/12/2017"
-	},
-]
+{"windspeed":15.725073234979453,"deviceid":"myIoTSensor","sensortime":"2017-03-12T23:07:00.0000000Z"}
