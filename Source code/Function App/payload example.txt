@@ -1,0 +1,7 @@
+[
+	{
+		deviceId : "myFirstDevice",
+		windSpeed : 10,
+		sensorTime : "3/12/2017"
+	},
+]
