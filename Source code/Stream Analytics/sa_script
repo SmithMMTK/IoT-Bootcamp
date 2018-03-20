@@ -1,10 +1,10 @@
 SELECT
     avg(temperature) As temperature,
-    ConnectionDeviceId,
+    DeviceId,
     DATEADD(hour,7,System.Timestamp) As sensorTime
 INTO
     output
 FROM
     input
-GROUP BY TumblingWindow (second, 5), ConnectionDeviceId
+GROUP BY TumblingWindow (second, 5), DeviceId
 HAVING avg(temperature) > 30
