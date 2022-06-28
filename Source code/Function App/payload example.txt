@@ -1,1 +1,1 @@
-{"windspeed":15.725073234979453,"deviceid":"myIoTSensor","sensortime":"2017-03-12T23:07:00.0000000Z"}
+{"windSpeed":15.725073234979453,"deviceId":"myIoTSensor","sensorTime":"2017-03-12T23:07:00.0000000Z"}
