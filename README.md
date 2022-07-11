@@ -32,7 +32,7 @@ First, **Create IoT hub through Azure Portal.**
     - Pricing and scale tier : S1 – Standard
     - IoT Hub units : 1
     - Device-to-cloud partitions : 4
-    - Resource group -> Create new : MyIoT or if you have already created your resource group, you can use your existing resource group.
+    - Resource group -> Create new : IoTDemo or if you have already created your resource group, you can use your existing resource group.
     - Location : Southeast Asia
 - Click Review + Create <br></br>
 ![iothub first page](/images/iothub.png)
@@ -51,29 +51,63 @@ Then, **Get Connection String and Access Key**
 Once you have created the IoT Hub, you may want to generate some data to feed into the IoT Hub. Azure IoT Solution supports many ways to send the data from local devices into cloud. For example, [Azure RTOS](https://docs.microsoft.com/en-us/azure/rtos/) can be used in microcontroller to operate IoT operations in the microcontroller. [Azure Sphere](https://docs.microsoft.com/en-us/azure-sphere/) is another options for the one who wants an end-to-end platform to handle IoT operations. Moreover, Azure also provides  Azure IoT SDKs to improve Azure development experience. 
 
 In this tutorial, we will simulate a device to send the data to IoT Hub using Azure IoT Hub SDKs by using Nodejs. 
-1. Create Simulated Device <br>
-    For Window 
-    - Download Node.js Installer from [this link](https://nodejs.org/en/download/) (Choose Windows 64 bits) and install in local machine
-    - Once installer finished, open Node.Js command prompt 
-    - Create new folder by type command “md c:\iotsim”, then type cd c:\iotsim” (warning: case sensitive)
-    - Create new folder by type command “md createdevice”, then type “cd createdevice” 
-    - Create a package.json file using the following command “npm init” at your command prompt. Accept all the defaults:
-    - Run the following command “npm install azure-iothub --save” to install the azure-iothub Service SDK package
-    - Copy source code from [this file](https://github.com/kuthaisang/IoT-Bootcamp/blob/master/Source%20code/Simulated%20Device/Create%20Device.js) and put into file c:\iotsim\createdevice\createdevice.js
-    - Open the createdevice.js file and replace the placeholder value with the "IoT Hub connection string" for the hub you created in the previous section <br></br>
 
-    ```cs
-    var connectionString = '<<IoT Hub connection string>>';
-    ```
-    - 
+1. **Create Simulated Device**
+    - For Window 
+        - Download Node.js Installer from [this link](https://nodejs.org/en/download/) (Choose Windows 64 bits) and install in local machine
+        - Once installer finished, open Node.Js command prompt 
+        - Create new folder by type command “md c:\iotsim”, then type cd c:\iotsim” (warning: case sensitive)
+        - Create new folder by type command “md createdevice”, then type “cd createdevice” 
+        - Create a package.json file using the following command “npm init” at your command prompt. Accept all the defaults:
+        - Run the following command “npm install azure-iothub --save” to install the azure-iothub Service SDK package
+        - Copy source code from [this file](https://github.com/kuthaisang/IoT-Bootcamp/blob/master/Source%20code/Simulated%20Device/Create%20Device.js) and put into file c:\iotsim\createdevice\createdevice.js
+        - Open the createdevice.js file and replace the placeholder value with the "IoT Hub connection string" for the hub you created in the previous section <br></br>
 
+        ```cs
+        var connectionString = '<<IoT Hub connection string>>';
+        ```
+        - To run the createdevice application, execute the following command at the command prompt in the createdevice folder `node createdevice.js`
+        - Make a note of the **Device ID** and **Device key**. You need these values later when you create an application that connects to IoT Hub as a device.
+        - Switch back to Azure IoT Hub in Azure Portal, click **Devices**
+        - Click Device name you just create by script, then copy and make note of the Device connection string 
+            - Device Id: xxxxxxxxxx
+            - Primary key: xxxxxxxxxx
+            - Connection string: xxxxxxxxxx
+    - For MacOS
+        - Same procedure as for Window. Use Terminal instead of Nodejs command prompt. 
+        - Create directory using  `mkdir iotsim`
+        - For node command, use same command as window
 
+2. **Create Received to cloud device using IoT Explorer**
 
+    There are many ways to read the data. We can write custom code to read the data directly from IoT Hub or there is another option called Azure IoT Explorer which provides an easy to use GUI for users. 
 
+    Here is how to install Azure IoT Explorer: Link to [Github repo](https://github.com/Azure/azure-iot-explorer). Follow the instruction to download and add connection string to your IoT Hub. Then, you will be able to monitor telemetry sended from your simulated device. 
 
+3. **Generate Telemetry Message from Simulated Device**
 
+    - For window
+        - Create new folder c:\iotsim\senddata” and open Node.js command at created folder
+        - Create a package.json file using the following command “npm init” at your command prompt. Accept all the defaults:
+        - Run the following command <br>
+         `npm install azure-iot-device azure-iot-device-mqtt --save` <br>
+         to install the azure-iot-device-mqtt
+        - Copy source code from [this file](https://github.com/kuthaisang/IoT-Bootcamp/blob/master/Source%20code/Simulated%20Device/Send%20Device%20Telemetry.js) and put into file c:\iotsim\senddata\senddata.js
+        - Open the senddata.js file and replace the placeholder value with the "IoT Device connection string" for the hub you created in the previous section
+        ```cs
+        var connectionString = '<<IoT Device connection string>>';
+        ```
+        - Run the senddata.js , execute the following command at the command prompt in the senddevice folder  `node senddata.js`
 
+After all the steps is done, you can monitor the telemetry and the status via Azure Portal and Azure IoT Explorer. 
 
+## Section 5: Process IoT Streaming Data
+In this section, we are going to process the data once it gets into IoT Hub. We will use Azure Stream Analytic to process the data and send the data to the next components in our computer. This will allow us to manipulate how the data flow in our work flow. 
+1. Start with Azure Stream Analytics
+    - Select New Stream Analytics Job
+    - Use the following parameters
+        - Job name: SA1
+        - Resource group: Use Existing = IoTDemo
+        - Location: Southeast Asia
 
-## Section 5:
 ## Section 6:
