@@ -1,34 +1,69 @@
+#r "Microsoft.Azure.EventHubs"
 #r "Newtonsoft.Json"
 
+
 using System;
+using System.Text;
+using Microsoft.Azure.EventHubs;
 using System.Net;
 using Newtonsoft.Json;
 using System.Net.Http.Headers;
 using System.Runtime.Serialization;
 using System.Dynamic;
 
-public static void Run(string myEventHubMessage, TraceWriter log)
+
+public static async Task Run(EventData[] events, ILogger log)
 {
+    var exceptions = new List<Exception>();
 
-    log.Info($"C# Event Hub trigger function processed a message: {myEventHubMessage}");
+    foreach (EventData eventData in events)
+    {
+        try
+        {
+            string messageBody = Encoding.UTF8.GetString(eventData.Body.Array, eventData.Body.Offset, eventData.Body.Count);
 
-    dynamic data = JsonConvert.DeserializeObject(myEventHubMessage);
-    dynamic dataToSend = new System.Dynamic.ExpandoObject();
+            // Replace these two lines with your processing logic.
+            log.LogInformation($"C# Event Hub trigger function processed a message: {messageBody}");
+            dynamic data = JsonConvert.DeserializeObject(messageBody);
+            dynamic dataToSend = new System.Dynamic.ExpandoObject();
 
-    dataToSend.windspeed = data.windspeed;
-    dataToSend.deviceid = data.deviceid;
-    dataToSend.sensortime = data.sensortime;
+            dataToSend.windSpeed = data.windSpeed;
+            dataToSend.deviceId = data.deviceId;
+            dataToSend.sensorTime = data.sensorTime;
+            
+            string serializedData = JsonConvert.SerializeObject(dataToSend);
+            log.LogInformation("***********"+serializedData);
 
-    string serializedData = JsonConvert.SerializeObject(dataToSend);
-    log.Info("***********"+serializedData);
+            var client = new HttpClient();
     
-    
-    //var client = new HttpClient();
-    
-    //client.BaseAddress = new Uri("API URL");
-    //client.DefaultRequestHeaders.Accept.Clear();
-    //client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.BaseAddress = new Uri("API URL");
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-    //HttpResponseMessage response = client.PostAsJsonAsync("",serializedData).Result;
-    //log.Info(response.ToString());
+            // HttpResponseMessage response = client.PostAsync("",serializedData).Result;
+            // var response = client.PostAsync("api/AgentCollection", new StringContent(
+            //     new JavaScriptSerializer().Serialize(dataToSend), Encoding.UTF8, "application/json")).Result;
+
+             var response = await client.PostAsync("", new StringContent(JsonConvert.SerializeObject(dataToSend), Encoding.UTF8, "application/json"));
+
+            log.LogInformation(response.ToString());
+            await Task.Yield();
+        }
+        catch (Exception e)
+        {
+            // We need to keep processing the rest of the batch - capture this exception and continue.
+            // Also, consider capturing details of the message that failed processing so it can be processed again later.
+            exceptions.Add(e);
+        }
+    }
+
+    // Once processing of the batch is complete, if any messages in the batch failed processing throw an exception so that there is a record of the failure.
+
+    if (exceptions.Count > 1)
+        throw new AggregateException(exceptions);
+
+    if (exceptions.Count == 1)
+        throw exceptions.Single();
 }
+
+
