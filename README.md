@@ -1,5 +1,5 @@
 # Azure IoT Service Tutorial
-In this tutorial, IoT architecture from Microsoft's Architecture Center and [P'Smith](https://github.com/SmithMMTK/IoT-Bootcamp) tutorial are use as reference. This tutorial will provide a thorough instruction to demonstrate IoT workflow from data generation to data ingress to data processing. This is designed for anyone who is interested in IoT technology in Azure environment. 
+In this tutorial, IoT architecture from Microsoft's Architecture Center and [P'Smith](https://github.com/SmithMMTK/IoT-Bootcamp) tutorial are used as reference. This tutorial will provide a thorough instruction to demonstrate IoT workflow from data generation to data ingress to data processing. This is designed for anyone who is interested in IoT technology in Azure environment. 
 ## Prerequisite
 - An Azure subscription. If you don't have an Azure subscription, [create a free account before you begin.](https://azure.microsoft.com/en-us/free/?WT.mc_id=A261C142F)
 - Any IDE that you are familiar with. [Visual Studio Code](https://code.visualstudio.com/Download) is used in this tutorial. 
@@ -102,12 +102,160 @@ In this tutorial, we will simulate a device to send the data to IoT Hub using Az
 After all the steps is done, you can monitor the telemetry and the status via Azure Portal and Azure IoT Explorer. 
 
 ## Section 5: Process IoT Streaming Data
-In this section, we are going to process the data once it gets into IoT Hub. We will use Azure Stream Analytic to process the data and send the data to the next components in our computer. This will allow us to manipulate how the data flow in our work flow. 
+In this section, we are going to process the data once it gets into IoT Hub. We will use Azure Stream Analytic to process the data and send the data to the next components in our computer. This will allow us to manipulate how the data flow in our work flow. Since we are trying to send data into 4 path including Power Bi, Blob Storage, Alert to mail, and Data Explorer. 
 1. Start with Azure Stream Analytics
     - Select New Stream Analytics Job
     - Use the following parameters
         - Job name: SA1
         - Resource group: Use Existing = IoTDemo
         - Location: Southeast Asia
+2. (Optional) Test Query in Stream Analytic
+    - Select Query box to go the Query Editor. You will be able enter T-SQL query that performs the transformation over the incoming event data
+    - Download example IoT Simulated Sensors from [this file](/Source%20code/Stream%20Analytics/windSpeed.json)
+    - Upload sample data into the input section
+    - Test your query language
 
-## Section 6:
+    note: add example picture into this
+3. Connect Azure Stream Analytics to receive data from Azure IoT Hub
+    - In the Job Topology panel click the Inputs box
+    - Add new Input by select IoT Hub and enter following parameter 
+        - Input alias: input
+        - IoT Hub: *use your iothub name* 
+        - Share access policy name: *iothubowner*
+        - Event serialization format: JSON (depend on your message type, in this case we use JSON)
+## Section 6: Work with Power Bi
+After we have set up our Stream Analytic, we will stream data into Power Bi and display real-time data through dashboard in Power Bi.
+1. Make sure that you have already connected your Office 365 Account to Power Bi. 
+2. Go to Stream Analytic that you have created in the last section and add output
+    - Click Outputs
+    - Add new output by enter following parameter
+        - Output alias: output
+        - Sink: Power BI
+        - Group workspace: My workspace
+        - Click Authorize button then enter your Office 365 User Name & Password
+        - Dataset Name: IoT Hub Sensors
+        - Table Name: Wind Sensors
+3. Click Query and Add query from [this file](/Source%20code/Stream%20Analytics/01%20Basic%20Query.txt)  
+```sql
+SELECT
+    max(windSpeed) As windSpeed,
+    deviceId,
+    DATEADD(hour,7,System.Timestamp) As sensorTime
+INTO
+    output
+FROM
+    input
+GROUP BY TumblingWindow (second, 1), deviceId
+```
+4. Go to Overview button and click start Stream Analytic Jobs   
+5. Switch to Power Bi portal and click My workspace
+6. On Datasets+Dataflows tab, you will see the dataset like below. 
+![Power Bi](/images/powerbi1.png)
+7. Click three dots and create report
+8. Once report page display, choose field of interest: sensortime, windspeed
+9. Select Line Chart in Visualizations area
+10. (Optional) There are many diagrams/graphs available for you to explore more. If interest, please try to create a informative visualization. 
+11. Save report and add report to dashboard.
+![Power Bi 2](/images/powerbi2.png)
+## Section 7: Store Sensor Data in BLOB Storage 
+1. Create Azure Storage
+    - Create Storage Account by entering following value:
+        - Name:  xxx (unique value)
+        - Account kind: Blob storage
+        - Replication: Locally-redundant storage (LRS)
+        - Resource group: Use existing -> Your IoT Resource Group
+        - Location : Southeast Asia
+2. Add new output to Stream Analytics
+    - Go to Stream Analytics and click stop button to add output
+    - Click output and add another output using following parameter
+        - Output alias: output2
+        - Sink: Blob storage
+        - Storage account: Your Storage Account that created in previous step
+        - Container: Create a new container -> myiotsensor
+        - Path pattern: sensor/logs/{date}
+3. Append query to the existing query from [this file](/Source%20code/Stream%20Analytics/02%20Basic%20Query.txt) and save the query. Don't forget to click start Stream Analytics Jobs
+```sql
+SELECT
+    max(windSpeed) As windSpeed,
+    deviceId,
+    DATEADD(hour,7,System.Timestamp) As sensorTime
+INTO
+    output
+FROM
+    input
+GROUP BY TumblingWindow (second, 1), deviceId
+
+SELECT
+    max(windSpeed) As windSpeed,
+    deviceId,
+    DATEADD(hour,7,System.Timestamp) As sensorTime
+INTO
+    output2
+FROM
+    input
+GROUP BY TumblingWindow (second, 1), deviceId
+```
+4. Review data that sent into Blob Storage Account
+    - Go to your storage account and choose the container 'myiotsensor'
+    - Explore JSON file that is kept in blob storage. 
+## Section 8: Alert to trigger a business workflow
+In this section, you will be able to monitor data that exceeds the threshold and notify people through email. 
+1. Create Azure Event Hub 
+    - Select Event Hubs and enter the following parameters
+        - Name:  xxx (unique value)
+        - Resource group: Use existing -> Your IoT Resource Group
+        - Location : Southeast Asia
+        - Pricing tier: Standard
+2. Go to Event Hubs under Entities panel and click + Event Hub 
+    - Name: iotevent
+3. Go to Stream Analytics 
+    - Add another output by enter the following parameters
+        - Output alias: output3
+        - Sink: Event hub
+        - Service hub namespace: your service hub
+        - Event hub name: iotevent
+        - Partition key column: deviceId
+    - Append query into existing query from [this file](/Source%20code/Stream%20Analytics/03%20Alert%20to%20trigger%20a%20business%20workflow.txt)
+```sql
+SELECT
+    max(windSpeed) As windSpeed,
+    deviceId,
+    DATEADD(hour,7,System.Timestamp) As sensorTime
+INTO
+    output
+FROM
+    input
+GROUP BY TumblingWindow (second, 1), deviceId
+
+SELECT
+    max(windSpeed) As windSpeed,
+    deviceId,
+    DATEADD(hour,7,System.Timestamp) As sensorTime
+INTO
+    output2
+FROM
+    input
+GROUP BY TumblingWindow (second, 1), deviceId
+
+SELECT
+    avg(windSpeed) As windSpeed,
+    deviceId,
+    DATEADD(hour,7,System.Timestamp) As sensorTime
+INTO
+    output3
+FROM
+    input
+GROUP BY TumblingWindow (second, 5), deviceId
+HAVING avg(WindSpeed) > 14
+```
+
+
+
+
+
+
+
+
+
+    
+

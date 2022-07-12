@@ -3,7 +3,7 @@ SELECT
     deviceId,
     DATEADD(hour,7,System.Timestamp) As sensorTime
 INTO
-    output
+    output3
 FROM
     input
 GROUP BY TumblingWindow (second, 5), deviceId
