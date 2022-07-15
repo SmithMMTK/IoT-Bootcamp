@@ -8,7 +8,7 @@ To start this tutorial, the overall architecture needs to be determined first. A
 - Monitor the real-time data through Dashboard
 - Store raw data in a place that can be access easily and fast
 - Send alert to the manager whenever the fan speed exceed the threshold limit 
-
+![Cover Picture](https://azurecomcdn.azureedge.net/cvt-7d12cb554a538170e8ffd3f464d6d95301d16aeeecba8d10775a17b0cdc5f7a2/images/page/overview/iot/index/tab1.png)
 ## Section 2: Azure Service and Architecture
 After the requirements are defined, Azure PaaS are used in the architecture. The service that you would need to know are
 - [Azure IoT Hub](https://docs.microsoft.com/azure/iot-hub) - Connect, monitor, and manage billions of IoT assets. Azure IoT Hub is a fully managed service that enables reliable and secure bidirectional communications between millions of IoT devices and a solution back end.
@@ -208,7 +208,11 @@ In this section, you will be able to monitor data that exceeds the threshold and
         - Pricing tier: Standard
 2. Go to Event Hubs under Entities panel and click + Event Hub 
     - Name: iotevent
-3. Go to Stream Analytics 
+3. Get Event Hub Connection String
+    - Open Event Hub and click Event Hub: iotevent
+    - Click Shared Access Policy and add new policy by enable manage, send, and listen in the claim section
+    - Take note on Primary Key and Connection String-Primary Key.
+4. Go to Stream Analytics 
     - Add another output by enter the following parameters
         - Output alias: output3
         - Sink: Event hub
@@ -248,7 +252,26 @@ FROM
 GROUP BY TumblingWindow (second, 5), deviceId
 HAVING avg(WindSpeed) > 14
 ```
+5. Create an Azure function to process the Event hub queue
+     - Create function app in Azure Portal by enter following value
+        - App Name: xxx (unique value)
+        - Resource Group: Your IoT Resource Group
+        - Hosting Plan: Consumption Plan
+        - Location: Southeast Asia
+    - Click + New Function > EventHubTrigger > C# > Create
+        - Development environment: Develop in portal
+        - Select Azure Event Hub Trigger Template
+        - Under Template Details, enter the following parameter
+            - New Function: xxx (unique name)
+            - Event Hub connection: Add New Event Hub Connection by specifying Event Hub name and connection you have created in the previous task called "iotevent".
+        ![ExampleofFunctionApp](/IoT-Bootcamp/images/functionapp.png)
+    - Replace the default code with code from [this file](/IoT-Bootcamp/Source%20code/Function%20App/eventHubFx.txt)
+    - Save and Run, Review result from Logs Section
+    
 
+
+
+            
 
 
 
