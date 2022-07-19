@@ -267,7 +267,34 @@ HAVING avg(WindSpeed) > 14
         ![ExampleofFunctionApp](/IoT-Bootcamp/images/functionapp.png)
     - Replace the default code with code from [this file](/IoT-Bootcamp/Source%20code/Function%20App/eventHubFx.txt)
     - Save and Run, Review result from Logs Section
-    
+
+6. Create an Azure Logic App to send out the alerts
+    - Create Logic App in your resource group by entering the following parameter
+        - App Name: LogicApp
+        - Resource Group: *Your IoT Resource Group name*
+        - Hosting Plan: Consumption Plan
+        - Location: Southeast Asia
+    - Build Logic App Solution by selecting Logic App Designer
+        - Click TRIGGERS and select **When a HTTP request is received**
+        - Click Use sample payload to generate schema
+        - Download sample payload from windSpeed.json at and paste into code area then click DONE.
+        - Click + New Step, then select Add an action
+        - Click + New Step, then select Add an action
+        - Type Office 365 Outlook send an email in query then click  Office 365 Outlook – Send an email
+        - Click Sign In and enter your credential
+        - Enter following parameter
+            - To: Your target mail
+            - Subject: WindSpeed Alert: @{json(triggerBody())['windSpeed']}
+        - Click Save then copy HTTP POST from Request Action
+        - Switch to Azure Function App, select your EventHubTrigger
+        - Replace API URL with the HTTP POST that you have copied from Logic App
+7. Run every compenents that you have created in this tutorial and Monitor the results in every services. 
+
+
+
+
+
+
 
 
 
