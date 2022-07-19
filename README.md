@@ -264,7 +264,7 @@ HAVING avg(WindSpeed) > 14
         - Under Template Details, enter the following parameter
             - New Function: xxx (unique name)
             - Event Hub connection: Add New Event Hub Connection by specifying Event Hub name and connection you have created in the previous task called "iotevent".
-        ![ExampleofFunctionApp](/IoT-Bootcamp/images/functionapp.png)
+        ![ExampleofFunctionApp](/images/functionapp.png)
     - Replace the default code with code from [this file](/IoT-Bootcamp/Source%20code/Function%20App/eventHubFx.txt)
     - Save and Run, Review result from Logs Section
 
